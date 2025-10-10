@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GetTreeQuotes - Admin Dashboard</title>
   
-  <!-- Favicon (same as main site) -->
-  <link rel="icon" type="image/x-icon" href="https://www.gettreequotes.com/favicon.ico">
+  <!-- Favicon (tree emoji) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌳</text></svg>">
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -457,7 +457,7 @@
         <button class="btn btn-primary" onclick="addProspect()">Add Prospect</button>
         
         <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
-          💡 Email sequence starts automatically when you trigger campaigns.
+          💡 Email 1 will be sent immediately after adding.
         </p>
       </div>
       
@@ -476,7 +476,7 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
         <button class="btn btn-primary" onclick="addBulkProspects()">Add All Prospects</button>
         
         <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
-          💡 Excel: Copy 2 columns (Email | Company) and paste directly
+          💡 Excel: Copy 2 columns (Email | Company) and paste directly. Email 1 will be sent to each immediately.
         </p>
       </div>
     </div>
@@ -525,11 +525,11 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
     // CONFIGURATION
     // ==============================================
     
-    const SUPABASE_URL = 'https://ljrfpvnjpxizbyphkbum.supabase.co';
+        const SUPABASE_URL = 'https://ljrfpvnjpxizbyphkbum.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqcmZwdm5qcHhpemJ5cGhrYnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMTg5MjksImV4cCI6MjA3NTU5NDkyOX0.-swScLVAdbMdVG7LED8sMbAYLiATTtUgFa68hwfLS9k';
     const CAMPAIGN_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/send-campaign-emails`;
     
-       // ==============================================
+    // ==============================================
     // TAB SWITCHING
     // ==============================================
     
@@ -747,13 +747,42 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
         });
         
         if (response.ok) {
-          showAlert('prospectAlert', `✅ Added ${companyName}! Email sequence will start automatically.`, 'success');
+          const newProspect = await response.json();
+          const prospectId = newProspect[0].id;
+          
+          showAlert('prospectAlert', `✅ Added ${companyName}! Sending Email 1 now...`, 'success');
           document.getElementById('prospectEmail').value = '';
           document.getElementById('prospectCompany').value = '';
           
-          setTimeout(() => {
-            loadProspectData();
-          }, 1000);
+          // Auto-send first email immediately
+          setTimeout(async () => {
+            try {
+              const sendResponse = await fetch(CAMPAIGN_FUNCTION_URL, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                },
+                body: JSON.stringify({ prospect_id: prospectId })
+              });
+              
+              const result = await sendResponse.json();
+              console.log('Send result:', result);
+              
+              if (result.success && result.emailsSent > 0) {
+                showAlert('prospectAlert', `✅ ${companyName} added and Email 1 sent!`, 'success');
+              } else {
+                showAlert('prospectAlert', `✅ ${companyName} added but email failed to send. Click "Send Now" to retry.`, 'error');
+              }
+              
+              loadProspectData();
+            } catch (error) {
+              console.error('Error sending email:', error);
+              showAlert('prospectAlert', `✅ ${companyName} added but email failed. Click "Send Now" to retry.`, 'error');
+              loadProspectData();
+            }
+          }, 500);
+          
         } else {
           const error = await response.json();
           if (error.message && error.message.includes('duplicate')) {
@@ -800,7 +829,7 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
         }
         
         const email = parts[0].toLowerCase();
-        const companyName = parts.slice(1).join(' ').trim(); // Join rest as company name
+        const companyName = parts.slice(1).join(' ').trim();
         
         if (!email.includes('@')) {
           errors.push(`Invalid email: ${email}`);
@@ -825,7 +854,24 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
           });
           
           if (response.ok) {
+            const newProspect = await response.json();
+            const prospectId = newProspect[0].id;
             successCount++;
+            
+            // Auto-send first email to each new prospect
+            try {
+              await fetch(CAMPAIGN_FUNCTION_URL, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                },
+                body: JSON.stringify({ prospect_id: prospectId })
+              });
+            } catch (sendError) {
+              console.error('Email send error:', sendError);
+            }
+            
           } else {
             const error = await response.json();
             if (error.message && error.message.includes('duplicate')) {
@@ -837,7 +883,7 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
           }
           
           // Small delay to avoid rate limiting
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise(resolve => setTimeout(resolve, 200));
           
         } catch (error) {
           errors.push(`Error: ${email}`);
@@ -846,7 +892,7 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       }
       
       // Show results
-      let message = `✅ Added ${successCount} prospects`;
+      let message = `✅ Added ${successCount} prospects and sent Email 1 to each`;
       if (errorCount > 0) {
         message += `\n⚠️ ${errorCount} failed`;
         if (errors.length > 0) {
@@ -980,11 +1026,13 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       }
     }
     
-    // Send email to individual prospect
+        // Send email to individual prospect
     async function sendToProspect(prospectId, email) {
       if (!confirm(`Send next email to ${email}?`)) {
         return;
       }
+      
+      console.log('Sending to prospect:', prospectId, email);
       
       try {
         const response = await fetch(CAMPAIGN_FUNCTION_URL, {
@@ -996,17 +1044,22 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
           body: JSON.stringify({ prospect_id: prospectId })
         });
         
-        const result = await response.json();
+        console.log('Response status:', response.status);
         
-        if (result.success || result.emailsSent > 0) {
+        const result = await response.json();
+        console.log('Result:', result);
+        
+        if (result.success && result.emailsSent > 0) {
           alert(`✅ Email sent to ${email}!`);
           loadProspectData();
+        } else if (result.success && result.emailsSent === 0) {
+          alert(`⚠️ No email sent. Either already sent or not enough time has passed since last email.`);
         } else {
-          alert(`⚠️ ${result.error || 'No email was due to be sent'}`);
+          alert(`❌ Error: ${result.error || 'Unknown error'}`);
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('❌ Error sending email');
+        alert('❌ Error sending email: ' + error.message);
       }
     }
     
