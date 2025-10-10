@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GetTreeQuotes - Admin Dashboard</title>
   
-  <!-- Favicon (tree emoji) -->
+  <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌳</text></svg>">
   
   <style>
@@ -16,15 +16,82 @@
       background: #f7fafc;
     }
     
+    /* Login Screen */
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #2d5016 0%, #1a3d0a 100%);
+    }
+    
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    .login-box h1 {
+      color: #2d5016;
+      margin-bottom: 10px;
+      font-size: 1.8em;
+    }
+    
+    .login-box p {
+      color: #666;
+      margin-bottom: 30px;
+    }
+    
+    .login-error {
+      background: #fed7d7;
+      border: 2px solid #fc8181;
+      color: #742a2a;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .login-error.show {
+      display: block;
+    }
+    
+    /* Main Dashboard */
+    #dashboard {
+      display: none;
+    }
+    
     .header {
       background: linear-gradient(135deg, #2d5016 0%, #1a3d0a 100%);
       color: white;
       padding: 20px 40px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     
     .header h1 {
       font-size: 1.8em;
+    }
+    
+    .logout-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 2px solid white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .logout-btn:hover {
+      background: white;
+      color: #2d5016;
     }
     
     .tabs {
@@ -215,13 +282,14 @@
       border-radius: 12px;
       font-size: 0.85em;
       font-weight: 600;
+      margin-right: 4px;
     }
     
     .badge-active { background: #c6f6d5; color: #22543d; }
     .badge-inactive { background: #fed7d7; color: #742a2a; }
     .badge-completed { background: #e2e8f0; color: #4a5568; }
-    .badge-premium { background: #fef5e7; color: #8b4513; }
-    .badge-budget { background: #bee3f8; color: #2c5282; }
+    .badge-growth { background: #bee3f8; color: #2c5282; }
+    .badge-group { background: #fef5e7; color: #8b4513; }
     
     .alert {
       padding: 15px;
@@ -285,239 +353,302 @@
     .prospect-tab-btn:hover {
       color: #2d5016;
     }
+    
+    .group-selector {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .group-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .group-checkbox:hover {
+      border-color: #48bb78;
+      background: #f7fafc;
+    }
+    
+    .group-checkbox input[type="checkbox"] {
+      width: auto;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   
-  <!-- Header -->
-  <div class="header">
-    <h1>🌳 GetTreeQuotes - Admin Dashboard</h1>
-  </div>
-  
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('clients')">
-      👥 Client Management
-    </button>
-    <button class="tab" onclick="switchTab('prospects')">
-      📧 Prospect Outreach
-    </button>
-  </div>
-  
-  <!-- TAB 1: CLIENT MANAGEMENT -->
-  <div id="clients-tab" class="tab-content active">
-    
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-number" id="totalClients">0</div>
-        <div class="stat-label">Total Clients</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="activeClients">0</div>
-        <div class="stat-label">Active Clients</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="monthlyRevenue">$0</div>
-        <div class="stat-label">Monthly Revenue</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="leadsDistributed">0</div>
-        <div class="stat-label">Leads Distributed</div>
-      </div>
-    </div>
-    
-    <!-- Add Client Form -->
-    <div class="section">
-      <h2>➕ Add New Client</h2>
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-box">
+      <h1>🌳 Admin Login</h1>
+      <p>GetTreeQuotes Dashboard</p>
       
-      <div id="clientAlert" class="alert"></div>
+      <div id="loginError" class="login-error"></div>
       
-      <form id="addClientForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Company Name *</label>
-            <input type="text" id="companyName" required>
-          </div>
-          
-          <div class="form-group">
-            <label>Contact Email *</label>
-            <input type="email" id="email" required>
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label>Phone</label>
-            <input type="tel" id="phone">
-          </div>
-          
-          <div class="form-group">
-            <label>State *</label>
-            <input type="text" id="state" placeholder="Texas" required>
-          </div>
-        </div>
-        
+      <form id="loginForm">
         <div class="form-group">
-          <label>Cities (comma separated) *</label>
-          <input type="text" id="cities" placeholder="Dallas, Fort Worth, Arlington" required>
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter password" required autofocus>
         </div>
         
-        <div class="form-group">
-          <label>Package Type</label>
-          <select id="packageType">
-            <option value="premium">Premium ($4,000/month - 100 leads)</option>
-            <option value="budget">Budget ($800/month - 20 leads)</option>
-          </select>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Add Client</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+          🔓 Unlock Dashboard
+        </button>
       </form>
     </div>
-    
-    <!-- Clients Table -->
-    <div class="section">
-      <h2>📋 Active Clients</h2>
-      
-      <div id="loadingClients" class="loading">Loading clients...</div>
-      
-      <div id="clientsTableContainer" style="display: none;">
-        <table>
-          <thead>
-            <tr>
-              <th>Company</th>
-              <th>Email</th>
-              <th>Cities</th>
-              <th>Package</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="clientsBody">
-          </tbody>
-        </table>
-      </div>
-    </div>
-    
   </div>
   
-  <!-- TAB 2: PROSPECT MANAGEMENT -->
-  <div id="prospects-tab" class="tab-content">
+  <!-- MAIN DASHBOARD -->
+  <div id="dashboard">
     
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-number" id="totalProspects">0</div>
-        <div class="stat-label">Total Prospects</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="activeProspects">0</div>
-        <div class="stat-label">Active Prospects</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="emailsSent">0</div>
-        <div class="stat-label">Emails Sent</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="completedSequences">0</div>
-        <div class="stat-label">Completed</div>
-      </div>
+    <!-- Header -->
+    <div class="header">
+      <h1>🌳 GetTreeQuotes - Admin Dashboard</h1>
+      <button class="logout-btn" onclick="logout()">🔒 Logout</button>
     </div>
     
-    <!-- Add Prospect Form -->
-    <div class="section">
-      <h2>➕ Add New Prospect</h2>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('clients')">
+        👥 Client Management
+      </button>
+      <button class="tab" onclick="switchTab('prospects')">
+        📧 Prospect Outreach
+      </button>
+    </div>
+    
+    <!-- TAB 1: CLIENT MANAGEMENT -->
+    <div id="clients-tab" class="tab-content active">
       
-      <div id="prospectAlert" class="alert"></div>
-      
-      <!-- Tabs for Single vs Bulk -->
-      <div class="prospect-tabs">
-        <button class="prospect-tab-btn active" id="singleTabBtn" onclick="switchProspectTab('single')">
-          Single Add
-        </button>
-        <button class="prospect-tab-btn" id="bulkTabBtn" onclick="switchProspectTab('bulk')">
-          Bulk Upload
-        </button>
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="totalClients">0</div>
+          <div class="stat-label">Total Clients</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="activeClients">0</div>
+          <div class="stat-label">Active Clients</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="monthlyRevenue">$0</div>
+          <div class="stat-label">Monthly Revenue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="leadsDistributed">0</div>
+          <div class="stat-label">Leads Distributed</div>
+        </div>
       </div>
       
-      <!-- SINGLE ADD FORM -->
-      <div id="singleAddForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Email Address *</label>
-            <input type="email" id="prospectEmail" placeholder="john@abctreeservice.com" required>
+      <!-- Add Client Form -->
+      <div class="section">
+        <h2>➕ Add New Client</h2>
+        
+        <div id="clientAlert" class="alert"></div>
+        
+        <form id="addClientForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Company Name *</label>
+              <input type="text" id="companyName" required>
+            </div>
+            
+            <div class="form-group">
+              <label>Contact Email *</label>
+              <input type="email" id="email" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="phone">
+            </div>
+            
+            <div class="form-group">
+              <label>State *</label>
+              <input type="text" id="state" placeholder="Texas" required>
+            </div>
           </div>
           
           <div class="form-group">
-            <label>Company Name *</label>
-            <input type="text" id="prospectCompany" placeholder="ABC Tree Service" required>
+            <label>Cities (comma separated) *</label>
+            <input type="text" id="cities" placeholder="Dallas, Fort Worth, Arlington" required>
           </div>
-        </div>
-        
-        <button class="btn btn-primary" onclick="addProspect()">Add Prospect</button>
-        
-        <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
-          💡 Email 1 will be sent immediately after adding.
-        </p>
+          
+          <div class="form-group">
+            <label>Lead Groups (select one or both) *</label>
+            <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">
+              💡 Select Group A ($2K/month) OR Group B ($2K/month) OR BOTH ($4K/month for 100 leads)
+            </p>
+            <div class="group-selector">
+              <label class="group-checkbox">
+                <input type="checkbox" name="leadGroups" value="A" checked>
+                <span>Group A (50 leads/month - $2,000)</span>
+              </label>
+              <label class="group-checkbox">
+                <input type="checkbox" name="leadGroups" value="B">
+                <span>Group B (50 leads/month - $2,000)</span>
+              </label>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary">Add Client</button>
+        </form>
       </div>
       
-      <!-- BULK ADD FORM -->
-      <div id="bulkAddForm" style="display: none;">
-        <div class="form-group">
-          <label>Paste Prospects (Excel: 2 columns OR manual: email, company)</label>
-          <textarea id="bulkProspects" rows="10" placeholder="Paste from Excel (2 columns: Email | Company Name)
+      <!-- Clients Table -->
+      <div class="section">
+        <h2>📋 Active Clients</h2>
+        
+        <div id="loadingClients" class="loading">Loading clients...</div>
+        
+                     <div id="clientsTableContainer" style="display: none;">
+          <table>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Email</th>
+                <th>Cities</th>
+                <th>Lead Groups</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="clientsBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+    </div>
+    
+    <!-- TAB 2: PROSPECT MANAGEMENT -->
+    <div id="prospects-tab" class="tab-content">
+      
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="totalProspects">0</div>
+          <div class="stat-label">Total Prospects</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="activeProspects">0</div>
+          <div class="stat-label">Active Prospects</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="emailsSent">0</div>
+          <div class="stat-label">Emails Sent</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="completedSequences">0</div>
+          <div class="stat-label">Completed</div>
+        </div>
+      </div>
+      
+      <!-- Add Prospect Form -->
+      <div class="section">
+        <h2>➕ Add New Prospect</h2>
+        
+        <div id="prospectAlert" class="alert"></div>
+        
+        <!-- Tabs for Single vs Bulk -->
+        <div class="prospect-tabs">
+          <button class="prospect-tab-btn active" id="singleTabBtn" onclick="switchProspectTab('single')">
+            Single Add
+          </button>
+          <button class="prospect-tab-btn" id="bulkTabBtn" onclick="switchProspectTab('bulk')">
+            Bulk Upload
+          </button>
+        </div>
+        
+        <!-- SINGLE ADD FORM -->
+        <div id="singleAddForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email Address *</label>
+              <input type="email" id="prospectEmail" placeholder="john@abctreeservice.com" required>
+            </div>
+            
+            <div class="form-group">
+              <label>Company Name *</label>
+              <input type="text" id="prospectCompany" placeholder="ABC Tree Service" required>
+            </div>
+          </div>
+          
+          <button class="btn btn-primary" onclick="addProspect()">Add Prospect</button>
+          
+          <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+            💡 Email 1 will be sent immediately after adding.
+          </p>
+        </div>
+        
+        <!-- BULK ADD FORM -->
+        <div id="bulkAddForm" style="display: none;">
+          <div class="form-group">
+            <label>Paste Prospects (Excel: 2 columns OR manual: email, company)</label>
+            <textarea id="bulkProspects" rows="10" placeholder="Paste from Excel (2 columns: Email | Company Name)
 
 OR type manually:
 john@treeco.com, ABC Tree Service
 jane@treeremoval.com, Jane's Trees
 bob@stumps.com, Bob's Stump Grinding"></textarea>
+          </div>
+          
+          <button class="btn btn-primary" onclick="addBulkProspects()">Add All Prospects</button>
+          
+          <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+            💡 Excel: Copy 2 columns (Email | Company) and paste directly. Email 1 will be sent to each immediately.
+          </p>
         </div>
-        
-        <button class="btn btn-primary" onclick="addBulkProspects()">Add All Prospects</button>
-        
-        <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
-          💡 Excel: Copy 2 columns (Email | Company) and paste directly. Email 1 will be sent to each immediately.
-        </p>
       </div>
-    </div>
-    
-    <!-- Actions -->
-    <div class="section">
-      <h2>⚡ Quick Actions</h2>
-      <div class="actions-row">
-        <button class="btn btn-secondary" onclick="sendCampaignNow()">
-          📧 Send Emails Now (Trigger All Due)
-        </button>
-        <button class="btn btn-secondary" onclick="loadProspectData()">
-          🔄 Refresh Data
-        </button>
-      </div>
-    </div>
-    
-    <!-- Prospects Table -->
-    <div class="section">
-      <h2>📋 All Prospects</h2>
       
-      <div id="loadingProspects" class="loading">Loading prospects...</div>
-      
-      <div id="prospectsTableContainer" style="display: none;">
-        <table>
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Company</th>
-              <th>Status</th>
-              <th>Last Email</th>
-              <th>Next Email</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="prospectsBody">
-          </tbody>
-        </table>
+      <!-- Actions -->
+      <div class="section">
+        <h2>⚡ Quick Actions</h2>
+        <div class="actions-row">
+          <button class="btn btn-secondary" onclick="sendCampaignNow()">
+            📧 Send Emails Now (Trigger All Due)
+          </button>
+          <button class="btn btn-secondary" onclick="loadProspectData()">
+            🔄 Refresh Data
+          </button>
+        </div>
       </div>
+      
+      <!-- Prospects Table -->
+      <div class="section">
+        <h2>📋 All Prospects</h2>
+        
+        <div id="loadingProspects" class="loading">Loading prospects...</div>
+        
+        <div id="prospectsTableContainer" style="display: none;">
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Company</th>
+                <th>Status</th>
+                <th>Last Email</th>
+                <th>Next Email</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="prospectsBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
     </div>
-    
+  
   </div>
 
   <script>
@@ -525,9 +656,52 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
     // CONFIGURATION
     // ==============================================
     
-        const SUPABASE_URL = 'https://ljrfpvnjpxizbyphkbum.supabase.co';
+    const SUPABASE_URL = 'https://ljrfpvnjpxizbyphkbum.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqcmZwdm5qcHhpemJ5cGhrYnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMTg5MjksImV4cCI6MjA3NTU5NDkyOX0.-swScLVAdbMdVG7LED8sMbAYLiATTtUgFa68hwfLS9k';
     const CAMPAIGN_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/send-campaign-emails`;
+    const CORRECT_PASSWORD = 'Hellokitty1!';
+    
+    // ==============================================
+    // PASSWORD PROTECTION
+    // ==============================================
+    
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const password = document.getElementById('loginPassword').value;
+      
+      if (password === CORRECT_PASSWORD) {
+        // Store in sessionStorage (cleared when browser closes)
+        sessionStorage.setItem('adminAuth', 'true');
+        showDashboard();
+      } else {
+        const errorDiv = document.getElementById('loginError');
+        errorDiv.textContent = '❌ Incorrect password. Try again.';
+        errorDiv.classList.add('show');
+        document.getElementById('loginPassword').value = '';
+        
+        setTimeout(() => {
+          errorDiv.classList.remove('show');
+        }, 3000);
+      }
+    });
+    
+    function showDashboard() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadClientData();
+    }
+    
+    function logout() {
+      sessionStorage.removeItem('adminAuth');
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('loginPassword').value = '';
+    }
+    
+    // Check if already authenticated
+    if (sessionStorage.getItem('adminAuth') === 'true') {
+      showDashboard();
+    }
     
     // ==============================================
     // TAB SWITCHING
@@ -551,7 +725,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       }
     }
     
-    // Switch between single and bulk add tabs
     function switchProspectTab(tab) {
       const singleForm = document.getElementById('singleAddForm');
       const bulkForm = document.getElementById('bulkAddForm');
@@ -594,13 +767,22 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       
       const cities = document.getElementById('cities').value.split(',').map(c => c.trim());
       
+      // Get selected groups
+      const groupCheckboxes = document.querySelectorAll('input[name="leadGroups"]:checked');
+      const leadGroups = Array.from(groupCheckboxes).map(cb => cb.value);
+      
+      if (leadGroups.length === 0) {
+        showAlert('clientAlert', '⚠️ Please select at least one lead group', 'error');
+        return;
+      }
+      
       const clientData = {
         company_name: document.getElementById('companyName').value,
         email: document.getElementById('email').value,
         phone: document.getElementById('phone').value || null,
         state_province: document.getElementById('state').value,
         cities: cities,
-        package_type: document.getElementById('packageType').value,
+        lead_groups: leadGroups,
         is_active: true,
         subscription_status: 'active',
         country: 'USA'
@@ -618,8 +800,12 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
         });
         
         if (response.ok) {
-          showAlert('clientAlert', '✅ Client added successfully!', 'success');
+          const monthlyPrice = leadGroups.length * 2000;
+          showAlert('clientAlert', `✅ Client added successfully! Monthly: $${monthlyPrice}`, 'success');
           document.getElementById('addClientForm').reset();
+          // Reset to default Group A checked
+          document.querySelector('input[name="leadGroups"][value="A"]').checked = true;
+          document.querySelector('input[name="leadGroups"][value="B"]').checked = false;
           loadClientData();
         } else {
           showAlert('clientAlert', '❌ Error adding client', 'error');
@@ -652,7 +838,10 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
         
         const revenue = clients
           .filter(c => c.is_active)
-          .reduce((sum, c) => sum + (c.package_type === 'premium' ? 4000 : 800), 0);
+          .reduce((sum, c) => {
+            const groupCount = c.lead_groups ? c.lead_groups.length : 1;
+            return sum + (groupCount * 2000);
+          }, 0);
         document.getElementById('monthlyRevenue').textContent = `$${revenue.toLocaleString()}`;
         
         // Load lead distributions count
@@ -671,12 +860,16 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
         tbody.innerHTML = '';
         
         clients.forEach(client => {
+          const groups = client.lead_groups || ['A'];
+          const groupBadges = groups.map(g => `<span class="badge badge-group">Group ${g}</span>`).join('');
+          const monthlyPrice = groups.length * 2000;
+          
           const row = `
             <tr>
               <td><strong>${client.company_name}</strong></td>
               <td>${client.email}</td>
               <td>${client.cities.join(', ')}</td>
-              <td><span class="badge badge-${client.package_type}">${client.package_type}</span></td>
+              <td>${groupBadges} <small style="color: #666;">($${monthlyPrice}/mo)</small></td>
               <td><span class="badge badge-${client.is_active ? 'active' : 'inactive'}">${client.is_active ? 'Active' : 'Inactive'}</span></td>
               <td>
                 <button class="btn btn-secondary btn-sm" onclick="toggleClient('${client.id}', ${!client.is_active})">
@@ -754,7 +947,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
           document.getElementById('prospectEmail').value = '';
           document.getElementById('prospectCompany').value = '';
           
-          // Auto-send first email immediately
           setTimeout(async () => {
             try {
               const sendResponse = await fetch(CAMPAIGN_FUNCTION_URL, {
@@ -797,7 +989,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       }
     }
     
-    // Add multiple prospects at once
     async function addBulkProspects() {
       const bulkText = document.getElementById('bulkProspects').value.trim();
       
@@ -811,14 +1002,11 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       let errorCount = 0;
       const errors = [];
       
-      for (const line of lines) {
-        // Handle both comma AND tab separated (Excel paste)
+            for (const line of lines) {
         let parts;
         if (line.includes('\t')) {
-          // Tab separated (Excel)
           parts = line.split('\t').map(p => p.trim());
         } else {
-          // Comma separated
           parts = line.split(',').map(p => p.trim());
         }
         
@@ -858,7 +1046,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
             const prospectId = newProspect[0].id;
             successCount++;
             
-            // Auto-send first email to each new prospect
             try {
               await fetch(CAMPAIGN_FUNCTION_URL, {
                 method: 'POST',
@@ -882,7 +1069,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
             errorCount++;
           }
           
-          // Small delay to avoid rate limiting
           await new Promise(resolve => setTimeout(resolve, 200));
           
         } catch (error) {
@@ -891,7 +1077,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
         }
       }
       
-      // Show results
       let message = `✅ Added ${successCount} prospects and sent Email 1 to each`;
       if (errorCount > 0) {
         message += `\n⚠️ ${errorCount} failed`;
@@ -918,7 +1103,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       document.getElementById('prospectsTableContainer').style.display = 'none';
       
       try {
-        // Get all prospects
         const response = await fetch(`${SUPABASE_URL}/rest/v1/prospects?select=*&order=created_at.desc`, {
           headers: {
             'apikey': SUPABASE_ANON_KEY,
@@ -938,12 +1122,10 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
         
         document.getElementById('prospectsTableContainer').style.display = 'block';
         
-        // Update stats
         document.getElementById('totalProspects').textContent = prospects.length;
         document.getElementById('activeProspects').textContent = prospects.filter(p => p.status === 'active').length;
         document.getElementById('completedSequences').textContent = prospects.filter(p => p.status === 'completed').length;
         
-        // Get email logs count
         const logsResponse = await fetch(`${SUPABASE_URL}/rest/v1/email_logs?select=count`, {
           headers: {
             'apikey': SUPABASE_ANON_KEY,
@@ -954,7 +1136,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
         const emailsCount = logsResponse.headers.get('Content-Range')?.split('/')[1] || '0';
         document.getElementById('emailsSent').textContent = emailsCount;
         
-        // Get email logs for each prospect
         const prospectsWithLogs = await Promise.all(
           prospects.map(async (prospect) => {
             const logsResponse = await fetch(
@@ -1026,7 +1207,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       }
     }
     
-        // Send email to individual prospect
     async function sendToProspect(prospectId, email) {
       if (!confirm(`Send next email to ${email}?`)) {
         return;
@@ -1063,7 +1243,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       }
     }
     
-    // Send to all prospects
     async function sendCampaignNow() {
       if (!confirm('This will send emails to all prospects who are due for their next email. Continue?')) {
         return;
@@ -1119,12 +1298,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       }
     }
     
-    // ==============================================
-    // INITIALIZE
-    // ==============================================
-    
-    // Load client data on page load
-    loadClientData();
   </script>
 </body>
 </html>
