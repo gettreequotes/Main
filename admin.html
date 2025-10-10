@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GetTreeQuotes - Client Management</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #2d5016; color: white; }
+    button { padding: 10px 20px; background: #48bb78; color: white; border: none; cursor: pointer; }
+    .form-group { margin-bottom: 15px; }
+    input, select { padding: 8px; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Client Management Dashboard</h1>
+    
+    <h2>Add New Client</h2>
+    <form id="addClientForm">
+      <div class="form-group">
+        <label>Company Name:</label>
+        <input type="text" id="companyName" required>
+      </div>
+      
+      <div class="form-group">
+        <label>Contact Email:</label>
+        <input type="email" id="email" required>
+      </div>
+      
+      <div class="form-group">
+        <label>Phone:</label>
+        <input type="tel" id="phone" required>
+      </div>
+      
+      <div class="form-group">
+        <label>State:</label>
+        <input type="text" id="state" placeholder="Texas" required>
+      </div>
+      
+      <div class="form-group">
+        <label>Cities (comma separated):</label>
+        <input type="text" id="cities" placeholder="Dallas, Fort Worth, Arlington" required>
+      </div>
+      
+      <div class="form-group">
+        <label>Package Type:</label>
+        <select id="packageType">
+          <option value="premium">Premium ($4,000/month - 100 leads)</option>
+          <option value="budget">Budget ($800/month - 20 leads)</option>
+        </select>
+      </div>
+      
+      <button type="submit">Add Client</button>
+    </form>
+    
+    <h2>Active Clients</h2>
+    <table id="clientsTable">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Email</th>
+          <th>Cities</th>
+          <th>Package</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="clientsBody">
+        <!-- Populated by JavaScript -->
+      </tbody>
+    </table>
+  </div>
+  
+  <script>
+    const SUPABASE_URL = 'https://ljrfpvnjpxizbyphkbum.supabase.co';
+    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+    
+    // Add client
+    document.getElementById('addClientForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const cities = document.getElementById('cities').value.split(',').map(c => c.trim());
+      
+      const clientData = {
+        company_name: document.getElementById('companyName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        state_province: document.getElementById('state').value,
+        cities: cities,
+        package_type: document.getElementById('packageType').value,
+        is_active: true,
+        subscription_status: 'active',
+        country: 'USA'
+      };
+      
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/clients`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(clientData)
+      });
+      
+      if (response.ok) {
+        alert('Client added successfully!');
+        loadClients();
+        document.getElementById('addClientForm').reset();
+      } else {
+        alert('Error adding client');
+      }
+    });
+    
+    // Load clients
+    async function loadClients() {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/clients?select=*`, {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      });
+      
+      const clients = await response.json();
+      
+      const tbody = document.getElementById('clientsBody');
+      tbody.innerHTML = '';
+      
+      clients.forEach(client => {
+        const row = `
+          <tr>
+            <td>${client.company_name}</td>
+            <td>${client.email}</td>
+            <td>${client.cities.join(', ')}</td>
+            <td>${client.package_type}</td>
+            <td>${client.is_active ? '✅ Active' : '❌ Inactive'}</td>
+            <td>
+              <button onclick="toggleClient('${client.id}', ${!client.is_active})">
+                ${client.is_active ? 'Deactivate' : 'Activate'}
+              </button>
+            </td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+    }
+    
+    // Toggle client status
+    async function toggleClient(clientId, newStatus) {
+      await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({ is_active: newStatus })
+      });
+      
+      loadClients();
+    }
+    
+    // Load on page load
+    loadClients();
+  </script>
+</body>
+</html>
