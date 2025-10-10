@@ -1,83 +1,501 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>GetTreeQuotes - Client Management</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GetTreeQuotes - Admin Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background: #2d5016; color: white; }
-    button { padding: 10px 20px; background: #48bb78; color: white; border: none; cursor: pointer; }
-    .form-group { margin-bottom: 15px; }
-    input, select { padding: 8px; width: 100%; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f7fafc;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #2d5016 0%, #1a3d0a 100%);
+      color: white;
+      padding: 20px 40px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .header h1 {
+      font-size: 1.8em;
+    }
+    
+    .tabs {
+      background: white;
+      display: flex;
+      gap: 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 20px 30px;
+      background: white;
+      border: none;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+      color: #666;
+    }
+    
+    .tab:hover {
+      background: #f7fafc;
+    }
+    
+    .tab.active {
+      color: #2d5016;
+      border-bottom-color: #48bb78;
+      background: #f7fafc;
+    }
+    
+    .tab-content {
+      display: none;
+      padding: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+      font-size: 2.5em;
+      font-weight: 800;
+      color: #2d5016;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      color: #666;
+      font-size: 0.9em;
+    }
+    
+    .section {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    
+    .section h2 {
+      color: #2d5016;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1em;
+      font-family: inherit;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #48bb78;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+    }
+    
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #2d3748;
+    }
+    
+    .btn-secondary:hover {
+      background: #cbd5e0;
+    }
+    
+    .btn-danger {
+      background: #fc8181;
+      color: white;
+      padding: 8px 16px;
+      font-size: 0.9em;
+    }
+    
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.9em;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    th {
+      background: #f7fafc;
+      color: #2d3748;
+      font-weight: 600;
+    }
+    
+    tr:hover {
+      background: #f7fafc;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+    
+    .badge-active { background: #c6f6d5; color: #22543d; }
+    .badge-inactive { background: #fed7d7; color: #742a2a; }
+    .badge-completed { background: #e2e8f0; color: #4a5568; }
+    .badge-premium { background: #fef5e7; color: #8b4513; }
+    .badge-budget { background: #bee3f8; color: #2c5282; }
+    
+    .alert {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .alert.show { display: block; }
+    .alert-success { background: #c6f6d5; border: 2px solid #38a169; color: #22543d; }
+    .alert-error { background: #fed7d7; border: 2px solid #fc8181; color: #742a2a; }
+    
+    .actions-row {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Client Management Dashboard</h1>
-    
-    <h2>Add New Client</h2>
-    <form id="addClientForm">
-      <div class="form-group">
-        <label>Company Name:</label>
-        <input type="text" id="companyName" required>
-      </div>
-      
-      <div class="form-group">
-        <label>Contact Email:</label>
-        <input type="email" id="email" required>
-      </div>
-      
-      <div class="form-group">
-        <label>Phone:</label>
-        <input type="tel" id="phone" required>
-      </div>
-      
-      <div class="form-group">
-        <label>State:</label>
-        <input type="text" id="state" placeholder="Texas" required>
-      </div>
-      
-      <div class="form-group">
-        <label>Cities (comma separated):</label>
-        <input type="text" id="cities" placeholder="Dallas, Fort Worth, Arlington" required>
-      </div>
-      
-      <div class="form-group">
-        <label>Package Type:</label>
-        <select id="packageType">
-          <option value="premium">Premium ($4,000/month - 100 leads)</option>
-          <option value="budget">Budget ($800/month - 20 leads)</option>
-        </select>
-      </div>
-      
-      <button type="submit">Add Client</button>
-    </form>
-    
-    <h2>Active Clients</h2>
-    <table id="clientsTable">
-      <thead>
-        <tr>
-          <th>Company</th>
-          <th>Email</th>
-          <th>Cities</th>
-          <th>Package</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="clientsBody">
-        <!-- Populated by JavaScript -->
-      </tbody>
-    </table>
+  
+  <!-- Header -->
+  <div class="header">
+    <h1>🌳 GetTreeQuotes - Admin Dashboard</h1>
   </div>
   
-  <script>
-    const SUPABASE_URL = 'https://ljrfpvnjpxizbyphkbum.supabase.co';
-    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('clients')">
+      👥 Client Management
+    </button>
+    <button class="tab" onclick="switchTab('prospects')">
+      📧 Prospect Outreach
+    </button>
+  </div>
+  
+  <!-- TAB 1: CLIENT MANAGEMENT -->
+  <div id="clients-tab" class="tab-content active">
     
-    // Add client
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" id="totalClients">0</div>
+        <div class="stat-label">Total Clients</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="activeClients">0</div>
+        <div class="stat-label">Active Clients</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="monthlyRevenue">$0</div>
+        <div class="stat-label">Monthly Revenue</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="leadsDistributed">0</div>
+        <div class="stat-label">Leads Distributed</div>
+      </div>
+    </div>
+    
+    <!-- Add Client Form -->
+    <div class="section">
+      <h2>➕ Add New Client</h2>
+      
+      <div id="clientAlert" class="alert"></div>
+      
+      <form id="addClientForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Company Name *</label>
+            <input type="text" id="companyName" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Contact Email *</label>
+            <input type="email" id="email" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="phone">
+          </div>
+          
+          <div class="form-group">
+            <label>State *</label>
+            <input type="text" id="state" placeholder="Texas" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Cities (comma separated) *</label>
+          <input type="text" id="cities" placeholder="Dallas, Fort Worth, Arlington" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Package Type</label>
+          <select id="packageType">
+            <option value="premium">Premium ($4,000/month - 100 leads)</option>
+            <option value="budget">Budget ($800/month - 20 leads)</option>
+          </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Add Client</button>
+      </form>
+    </div>
+    
+    <!-- Clients Table -->
+    <div class="section">
+      <h2>📋 Active Clients</h2>
+      
+      <div id="loadingClients" class="loading">Loading clients...</div>
+      
+      <div id="clientsTableContainer" style="display: none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Email</th>
+              <th>Cities</th>
+              <th>Package</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="clientsBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- TAB 2: PROSPECT MANAGEMENT -->
+  <div id="prospects-tab" class="tab-content">
+    
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" id="totalProspects">0</div>
+        <div class="stat-label">Total Prospects</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="activeProspects">0</div>
+        <div class="stat-label">Active Prospects</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="emailsSent">0</div>
+        <div class="stat-label">Emails Sent</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="completedSequences">0</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+    
+    <!-- Add Prospect Form -->
+    <div class="section">
+      <h2>➕ Add New Prospect</h2>
+      
+      <div id="prospectAlert" class="alert"></div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" id="prospectEmail" placeholder="john@abctreeservice.com" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Company Name *</label>
+          <input type="text" id="prospectCompany" placeholder="ABC Tree Service" required>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary" onclick="addProspect()">Add Prospect</button>
+      
+      <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+        💡 First name will be auto-extracted from email. Email sequence starts automatically.
+      </p>
+    </div>
+    
+    <!-- Actions -->
+    <div class="section">
+      <h2>⚡ Quick Actions</h2>
+      <div class="actions-row">
+        <button class="btn btn-secondary" onclick="sendCampaignNow()">
+          📧 Send Emails Now (Manual Trigger)
+        </button>
+        <button class="btn btn-secondary" onclick="loadProspectData()">
+          🔄 Refresh Data
+        </button>
+      </div>
+    </div>
+    
+    <!-- Prospects Table -->
+    <div class="section">
+      <h2>📋 All Prospects</h2>
+      
+      <div id="loadingProspects" class="loading">Loading prospects...</div>
+      
+      <div id="prospectsTableContainer" style="display: none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Company</th>
+              <th>Status</th>
+              <th>Last Email</th>
+              <th>Next Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="prospectsBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+  </div>
+
+  <script>
+    // ==============================================
+    // CONFIGURATION
+    // ==============================================
+    
+    const SUPABASE_URL = 'https://ljrfpvnjpxizbyphkbum.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqcmZwdm5qcHhpemJ5cGhrYnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMTg5MjksImV4cCI6MjA3NTU5NDkyOX0.-swScLVAdbMdVG7LED8sMbAYLiATTtUgFa68hwfLS9k';
+    const CAMPAIGN_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/send-campaign-emails`;
+    
+    // ==============================================
+    // TAB SWITCHING
+    // ==============================================
+    
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Show selected tab
+      document.getElementById(`${tabName}-tab`).classList.add('active');
+      event.target.classList.add('active');
+      
+      // Load data for that tab
+      if (tabName === 'clients') {
+        loadClientData();
+      } else {
+        loadProspectData();
+      }
+    }
+    
+    // ==============================================
+    // HELPER FUNCTIONS
+    // ==============================================
+    
+    function showAlert(elementId, message, type) {
+      const alert = document.getElementById(elementId);
+      alert.className = `alert alert-${type} show`;
+      alert.textContent = message;
+      
+      setTimeout(() => {
+        alert.classList.remove('show');
+      }, 5000);
+    }
+    
+    // ==============================================
+    // CLIENT MANAGEMENT (TAB 1)
+    // ==============================================
+    
     document.getElementById('addClientForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -86,7 +504,7 @@
       const clientData = {
         company_name: document.getElementById('companyName').value,
         email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
+        phone: document.getElementById('phone').value || null,
         state_province: document.getElementById('state').value,
         cities: cities,
         package_type: document.getElementById('packageType').value,
@@ -95,75 +513,337 @@
         country: 'USA'
       };
       
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/clients`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify(clientData)
-      });
-      
-      if (response.ok) {
-        alert('Client added successfully!');
-        loadClients();
-        document.getElementById('addClientForm').reset();
-      } else {
-        alert('Error adding client');
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/clients`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify(clientData)
+        });
+        
+        if (response.ok) {
+          showAlert('clientAlert', '✅ Client added successfully!', 'success');
+          document.getElementById('addClientForm').reset();
+          loadClientData();
+        } else {
+          showAlert('clientAlert', '❌ Error adding client', 'error');
+        }
+      } catch (error) {
+        showAlert('clientAlert', '❌ Error adding client', 'error');
       }
     });
     
-    // Load clients
-    async function loadClients() {
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/clients?select=*`, {
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-        }
-      });
+    async function loadClientData() {
+      document.getElementById('loadingClients').style.display = 'block';
+      document.getElementById('clientsTableContainer').style.display = 'none';
       
-      const clients = await response.json();
-      
-      const tbody = document.getElementById('clientsBody');
-      tbody.innerHTML = '';
-      
-      clients.forEach(client => {
-        const row = `
-          <tr>
-            <td>${client.company_name}</td>
-            <td>${client.email}</td>
-            <td>${client.cities.join(', ')}</td>
-            <td>${client.package_type}</td>
-            <td>${client.is_active ? '✅ Active' : '❌ Inactive'}</td>
-            <td>
-              <button onclick="toggleClient('${client.id}', ${!client.is_active})">
-                ${client.is_active ? 'Deactivate' : 'Activate'}
-              </button>
-            </td>
-          </tr>
-        `;
-        tbody.innerHTML += row;
-      });
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/clients?select=*`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+        
+        const clients = await response.json();
+        
+        document.getElementById('loadingClients').style.display = 'none';
+        document.getElementById('clientsTableContainer').style.display = 'block';
+        
+        // Update stats
+        document.getElementById('totalClients').textContent = clients.length;
+        document.getElementById('activeClients').textContent = clients.filter(c => c.is_active).length;
+        
+        const revenue = clients
+          .filter(c => c.is_active)
+          .reduce((sum, c) => sum + (c.package_type === 'premium' ? 4000 : 800), 0);
+        document.getElementById('monthlyRevenue').textContent = `$${revenue.toLocaleString()}`;
+        
+        // Load lead distributions count
+        const logsResponse = await fetch(`${SUPABASE_URL}/rest/v1/lead_distributions?select=count`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Prefer': 'count=exact'
+          }
+        });
+        const leadsCount = logsResponse.headers.get('Content-Range')?.split('/')[1] || '0';
+        document.getElementById('leadsDistributed').textContent = leadsCount;
+        
+        // Populate table
+        const tbody = document.getElementById('clientsBody');
+        tbody.innerHTML = '';
+        
+        clients.forEach(client => {
+          const row = `
+            <tr>
+              <td><strong>${client.company_name}</strong></td>
+              <td>${client.email}</td>
+              <td>${client.cities.join(', ')}</td>
+              <td><span class="badge badge-${client.package_type}">${client.package_type}</span></td>
+              <td><span class="badge badge-${client.is_active ? 'active' : 'inactive'}">${client.is_active ? 'Active' : 'Inactive'}</span></td>
+                            <td>
+                <button class="btn btn-secondary btn-sm" onclick="toggleClient('${client.id}', ${!client.is_active})">
+                  ${client.is_active ? 'Deactivate' : 'Activate'}
+                </button>
+              </td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+        
+      } catch (error) {
+        console.error('Error loading clients:', error);
+        document.getElementById('loadingClients').innerHTML = '❌ Error loading clients';
+      }
     }
     
-    // Toggle client status
     async function toggleClient(clientId, newStatus) {
-      await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify({ is_active: newStatus })
-      });
-      
-      loadClients();
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify({ is_active: newStatus })
+        });
+        
+        loadClientData();
+      } catch (error) {
+        alert('❌ Error updating client');
+      }
     }
     
-    // Load on page load
-    loadClients();
+    // ==============================================
+    // PROSPECT MANAGEMENT (TAB 2)
+    // ==============================================
+    
+    async function addProspect() {
+      const email = document.getElementById('prospectEmail').value.trim();
+      const companyName = document.getElementById('prospectCompany').value.trim();
+      
+      if (!email || !companyName) {
+        showAlert('prospectAlert', 'Please fill in both email and company name', 'error');
+        return;
+      }
+      
+      if (!email.includes('@')) {
+        showAlert('prospectAlert', 'Please enter a valid email address', 'error');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/prospects`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({
+            email: email.toLowerCase(),
+            company_name: companyName,
+            status: 'active'
+          })
+        });
+        
+        if (response.ok) {
+          showAlert('prospectAlert', `✅ Added ${companyName}! Email sequence will start automatically.`, 'success');
+          document.getElementById('prospectEmail').value = '';
+          document.getElementById('prospectCompany').value = '';
+          
+          setTimeout(() => {
+            loadProspectData();
+          }, 1000);
+        } else {
+          const error = await response.json();
+          if (error.message && error.message.includes('duplicate')) {
+            showAlert('prospectAlert', '⚠️ This email is already in the system', 'error');
+          } else {
+            showAlert('prospectAlert', '❌ Error adding prospect', 'error');
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showAlert('prospectAlert', '❌ Error adding prospect', 'error');
+      }
+    }
+    
+    async function loadProspectData() {
+      document.getElementById('loadingProspects').style.display = 'block';
+      document.getElementById('prospectsTableContainer').style.display = 'none';
+      
+      try {
+        // Get all prospects
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/prospects?select=*&order=created_at.desc`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+        
+        const prospects = await response.json();
+        
+        document.getElementById('loadingProspects').style.display = 'none';
+        
+        if (!prospects || prospects.length === 0) {
+          document.getElementById('prospectsTableContainer').innerHTML = '<div class="empty-state">No prospects yet. Add your first one above!</div>';
+          document.getElementById('prospectsTableContainer').style.display = 'block';
+          return;
+        }
+        
+        document.getElementById('prospectsTableContainer').style.display = 'block';
+        
+        // Update stats
+        document.getElementById('totalProspects').textContent = prospects.length;
+        document.getElementById('activeProspects').textContent = prospects.filter(p => p.status === 'active').length;
+        document.getElementById('completedSequences').textContent = prospects.filter(p => p.status === 'completed').length;
+        
+        // Get email logs count
+        const logsResponse = await fetch(`${SUPABASE_URL}/rest/v1/email_logs?select=count`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Prefer': 'count=exact'
+          }
+        });
+        const emailsCount = logsResponse.headers.get('Content-Range')?.split('/')[1] || '0';
+        document.getElementById('emailsSent').textContent = emailsCount;
+        
+        // Get email logs for each prospect
+        const prospectsWithLogs = await Promise.all(
+          prospects.map(async (prospect) => {
+            const logsResponse = await fetch(
+              `${SUPABASE_URL}/rest/v1/email_logs?prospect_id=eq.${prospect.id}&select=*,email_campaigns(name,sequence_order,delay_days)&order=sent_at.desc`,
+              {
+                headers: {
+                  'apikey': SUPABASE_ANON_KEY,
+                  'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+              }
+            );
+            const logs = await logsResponse.json();
+            return { ...prospect, logs };
+          })
+        );
+        
+        const tbody = document.getElementById('prospectsBody');
+        tbody.innerHTML = '';
+        
+        prospectsWithLogs.forEach(prospect => {
+          const lastLog = prospect.logs && prospect.logs.length > 0 ? prospect.logs[0] : null;
+          const lastEmailText = lastLog 
+            ? `Email ${lastLog.email_campaigns.sequence_order} - ${new Date(lastLog.sent_at).toLocaleDateString()}`
+            : 'Not started';
+          
+          let nextEmailText = 'Pending';
+          if (lastLog) {
+            const nextSequence = lastLog.email_campaigns.sequence_order + 1;
+            if (nextSequence <= 4) {
+              const daysSinceLast = Math.floor(
+                (Date.now() - new Date(lastLog.sent_at).getTime()) / (1000 * 60 * 60 * 24)
+              );
+              const daysUntilNext = lastLog.email_campaigns.delay_days - daysSinceLast;
+              nextEmailText = daysUntilNext > 0 
+                ? `Email ${nextSequence} in ${daysUntilNext} days`
+                : `Email ${nextSequence} - ready`;
+            } else {
+              nextEmailText = 'Sequence complete';
+            }
+          } else {
+            nextEmailText = 'Email 1 - ready';
+          }
+          
+          const row = `
+            <tr>
+              <td>${prospect.email}</td>
+              <td><strong>${prospect.company_name}</strong></td>
+              <td><span class="badge badge-${prospect.status}">${prospect.status}</span></td>
+              <td>${lastEmailText}</td>
+              <td>${nextEmailText}</td>
+              <td>
+                <button class="btn btn-danger btn-sm" onclick="deleteProspect('${prospect.id}', '${prospect.company_name}')">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+        
+      } catch (error) {
+        console.error('Error loading prospects:', error);
+        document.getElementById('loadingProspects').innerHTML = '❌ Error loading prospects';
+      }
+    }
+    
+    async function sendCampaignNow() {
+      if (!confirm('This will send emails to all prospects who are due for their next email. Continue?')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(CAMPAIGN_FUNCTION_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify({})
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert(`✅ Success! Sent ${result.emailsSent} emails.`);
+          loadProspectData();
+        } else {
+          alert(`❌ Error: ${result.error}`);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Error sending emails');
+      }
+    }
+    
+    async function deleteProspect(id, companyName) {
+      if (!confirm(`Delete ${companyName}? This cannot be undone.`)) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/prospects?id=eq.${id}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+        
+        if (response.ok) {
+          alert(`✅ Deleted ${companyName}`);
+          loadProspectData();
+        } else {
+          alert('❌ Error deleting prospect');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Error deleting prospect');
+      }
+    }
+    
+    // ==============================================
+    // INITIALIZE
+    // ==============================================
+    
+    // Load client data on page load
+    loadClientData();
   </script>
 </body>
 </html>
