@@ -171,6 +171,13 @@
       font-size: 0.9em;
     }
     
+    .btn-warning {
+      background: #f6ad55;
+      color: white;
+      padding: 8px 16px;
+      font-size: 0.9em;
+    }
+    
     .btn-sm {
       padding: 6px 12px;
       font-size: 0.9em;
@@ -228,6 +235,11 @@
       gap: 10px;
       justify-content: flex-end;
       margin-top: 20px;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 8px;
     }
     
     .loading {
@@ -401,7 +413,7 @@
       <button class="btn btn-primary" onclick="addProspect()">Add Prospect</button>
       
       <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
-        💡 First name will be auto-extracted from email. Email sequence starts automatically.
+        💡 Email sequence starts automatically when you trigger campaigns.
       </p>
     </div>
     
@@ -410,7 +422,7 @@
       <h2>⚡ Quick Actions</h2>
       <div class="actions-row">
         <button class="btn btn-secondary" onclick="sendCampaignNow()">
-          📧 Send Emails Now (Manual Trigger)
+          📧 Send Emails Now (Trigger All Due)
         </button>
         <button class="btn btn-secondary" onclick="loadProspectData()">
           🔄 Refresh Data
@@ -458,7 +470,6 @@
     // ==============================================
     
     function switchTab(tabName) {
-      // Hide all tabs
       document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
       });
@@ -466,11 +477,9 @@
         tab.classList.remove('active');
       });
       
-      // Show selected tab
       document.getElementById(`${tabName}-tab`).classList.add('active');
       event.target.classList.add('active');
       
-      // Load data for that tab
       if (tabName === 'clients') {
         loadClientData();
       } else {
@@ -540,7 +549,7 @@
       document.getElementById('loadingClients').style.display = 'block';
       document.getElementById('clientsTableContainer').style.display = 'none';
       
-      try {
+             try {
         const response = await fetch(`${SUPABASE_URL}/rest/v1/clients?select=*`, {
           headers: {
             'apikey': SUPABASE_ANON_KEY,
@@ -585,7 +594,7 @@
               <td>${client.cities.join(', ')}</td>
               <td><span class="badge badge-${client.package_type}">${client.package_type}</span></td>
               <td><span class="badge badge-${client.is_active ? 'active' : 'inactive'}">${client.is_active ? 'Active' : 'Inactive'}</span></td>
-                            <td>
+              <td>
                 <button class="btn btn-secondary btn-sm" onclick="toggleClient('${client.id}', ${!client.is_active})">
                   ${client.is_active ? 'Deactivate' : 'Activate'}
                 </button>
@@ -768,9 +777,14 @@
               <td>${lastEmailText}</td>
               <td>${nextEmailText}</td>
               <td>
-                <button class="btn btn-danger btn-sm" onclick="deleteProspect('${prospect.id}', '${prospect.company_name}')">
-                  Delete
-                </button>
+                <div class="action-buttons">
+                  <button class="btn btn-warning btn-sm" onclick="sendToProspect('${prospect.id}', '${prospect.email}')">
+                    Send Now
+                  </button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteProspect('${prospect.id}', '${prospect.company_name}')">
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           `;
@@ -783,6 +797,37 @@
       }
     }
     
+    // Send email to individual prospect
+    async function sendToProspect(prospectId, email) {
+      if (!confirm(`Send next email to ${email}?`)) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(CAMPAIGN_FUNCTION_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify({ prospect_id: prospectId })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success || result.emailsSent > 0) {
+          alert(`✅ Email sent to ${email}!`);
+          loadProspectData();
+        } else {
+          alert(`⚠️ ${result.error || 'No email was due to be sent'}`);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Error sending email');
+      }
+    }
+    
+    // Send to all prospects
     async function sendCampaignNow() {
       if (!confirm('This will send emails to all prospects who are due for their next email. Continue?')) {
         return;
@@ -800,8 +845,8 @@
         
         const result = await response.json();
         
-        if (result.success) {
-          alert(`✅ Success! Sent ${result.emailsSent} emails.`);
+        if (result.success || result.emailsSent >= 0) {
+          alert(`✅ Success! Sent ${result.emailsSent} email(s).`);
           loadProspectData();
         } else {
           alert(`❌ Error: ${result.error}`);
@@ -813,7 +858,7 @@
     }
     
     async function deleteProspect(id, companyName) {
-      if (!confirm(`Delete ${companyName}? This cannot be undone.`)) {
+      if (!confirm(`Delete ${companyName}? This will remove them from the email sequence permanently.`)) {
         return;
       }
       
