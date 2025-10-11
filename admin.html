@@ -422,6 +422,9 @@
       <button class="tab" onclick="switchTab('prospects')">
         📧 Prospect Outreach
       </button>
+      <button class="tab" onclick="switchTab('leads')">
+        📋 Lead Dashboard
+      </button>
     </div>
     
     <!-- TAB 1: CLIENT MANAGEMENT -->
@@ -481,6 +484,7 @@
           <div class="form-group">
             <label>Cities (comma separated) *</label>
             <input type="text" id="cities" placeholder="Dallas, Fort Worth, Arlington" required>
+            <small style="color: #666;">💡 Use exact capitalization (e.g., "Dallas" not "dallas")</small>
           </div>
           
           <div class="form-group">
@@ -510,7 +514,7 @@
         
         <div id="loadingClients" class="loading">Loading clients...</div>
         
-                     <div id="clientsTableContainer" style="display: none;">
+        <div id="clientsTableContainer" style="display: none;">
           <table>
             <thead>
               <tr>
@@ -590,7 +594,7 @@
           </p>
         </div>
         
-        <!-- BULK ADD FORM -->
+                    <!-- BULK ADD FORM -->
         <div id="bulkAddForm" style="display: none;">
           <div class="form-group">
             <label>Paste Prospects (Excel: 2 columns OR manual: email, company)</label>
@@ -648,6 +652,54 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       </div>
       
     </div>
+    
+    <!-- TAB 3: LEAD DASHBOARD (NEW) -->
+    <div id="leads-tab" class="tab-content">
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="totalLeads">0</div>
+          <div class="stat-label">Total Leads</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="leadsToday">0</div>
+          <div class="stat-label">Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="distributedLeads">0</div>
+          <div class="stat-label">Distributed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="undistributedLeads">0</div>
+          <div class="stat-label">Not Distributed</div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h2>📋 Recent Leads</h2>
+        
+        <div id="loadingLeads" class="loading">Loading leads...</div>
+        
+        <div id="leadsTableContainer" style="display: none;">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>City</th>
+                <th>Service</th>
+                <th>Lead Group</th>
+                <th>Distributed To</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="leadsBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+    </div>
   
   </div>
 
@@ -670,7 +722,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       const password = document.getElementById('loginPassword').value;
       
       if (password === CORRECT_PASSWORD) {
-        // Store in sessionStorage (cleared when browser closes)
         sessionStorage.setItem('adminAuth', 'true');
         showDashboard();
       } else {
@@ -698,7 +749,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       document.getElementById('loginPassword').value = '';
     }
     
-    // Check if already authenticated
     if (sessionStorage.getItem('adminAuth') === 'true') {
       showDashboard();
     }
@@ -720,8 +770,10 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       
       if (tabName === 'clients') {
         loadClientData();
-      } else {
+      } else if (tabName === 'prospects') {
         loadProspectData();
+      } else if (tabName === 'leads') {
+        loadLeadData();
       }
     }
     
@@ -767,7 +819,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       
       const cities = document.getElementById('cities').value.split(',').map(c => c.trim());
       
-      // Get selected groups
       const groupCheckboxes = document.querySelectorAll('input[name="leadGroups"]:checked');
       const leadGroups = Array.from(groupCheckboxes).map(cb => cb.value);
       
@@ -803,7 +854,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
           const monthlyPrice = leadGroups.length * 2000;
           showAlert('clientAlert', `✅ Client added successfully! Monthly: $${monthlyPrice}`, 'success');
           document.getElementById('addClientForm').reset();
-          // Reset to default Group A checked
           document.querySelector('input[name="leadGroups"][value="A"]').checked = true;
           document.querySelector('input[name="leadGroups"][value="B"]').checked = false;
           loadClientData();
@@ -832,7 +882,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
         document.getElementById('loadingClients').style.display = 'none';
         document.getElementById('clientsTableContainer').style.display = 'block';
         
-        // Update stats
         document.getElementById('totalClients').textContent = clients.length;
         document.getElementById('activeClients').textContent = clients.filter(c => c.is_active).length;
         
@@ -844,7 +893,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
           }, 0);
         document.getElementById('monthlyRevenue').textContent = `$${revenue.toLocaleString()}`;
         
-        // Load lead distributions count
         const logsResponse = await fetch(`${SUPABASE_URL}/rest/v1/lead_distributions?select=count`, {
           headers: {
             'apikey': SUPABASE_ANON_KEY,
@@ -855,7 +903,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
         const leadsCount = logsResponse.headers.get('Content-Range')?.split('/')[1] || '0';
         document.getElementById('leadsDistributed').textContent = leadsCount;
         
-        // Populate table
         const tbody = document.getElementById('clientsBody');
         tbody.innerHTML = '';
         
@@ -872,9 +919,14 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
               <td>${groupBadges} <small style="color: #666;">($${monthlyPrice}/mo)</small></td>
               <td><span class="badge badge-${client.is_active ? 'active' : 'inactive'}">${client.is_active ? 'Active' : 'Inactive'}</span></td>
               <td>
-                <button class="btn btn-secondary btn-sm" onclick="toggleClient('${client.id}', ${!client.is_active})">
-                  ${client.is_active ? 'Deactivate' : 'Activate'}
-                </button>
+                <div class="action-buttons">
+                  <button class="btn btn-secondary btn-sm" onclick="editClient('${client.id}')">
+                    ✏️ Edit
+                  </button>
+                  <button class="btn btn-secondary btn-sm" onclick="toggleClient('${client.id}', ${!client.is_active})">
+                    ${client.is_active ? 'Deactivate' : 'Activate'}
+                  </button>
+                </div>
               </td>
             </tr>
           `;
@@ -902,6 +954,87 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
         loadClientData();
       } catch (error) {
         alert('❌ Error updating client');
+      }
+    }
+    
+    // ✅ NEW: EDIT CLIENT FUNCTION
+    async function editClient(clientId) {
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+        
+        const clients = await response.json();
+        if (!clients || clients.length === 0) {
+          alert('Client not found');
+          return;
+        }
+        
+        const client = clients[0];
+        
+        const newCompanyName = prompt('Company Name:', client.company_name);
+        if (!newCompanyName) return;
+        
+        const newEmail = prompt('Email:', client.email);
+        if (!newEmail) return;
+        
+        const newPhone = prompt('Phone:', client.phone || '');
+        
+        const newState = prompt('State:', client.state_province);
+        if (!newState) return;
+        
+        const newCities = prompt('Cities (comma separated):', client.cities.join(', '));
+        if (!newCities) return;
+        
+        const currentGroupA = client.lead_groups?.includes('A');
+        const currentGroupB = client.lead_groups?.includes('B');
+        
+        const groupA = confirm(`Include in Group A? (Currently: ${currentGroupA ? 'YES' : 'NO'})\nClick OK for YES, Cancel for NO`);
+        const groupB = confirm(`Include in Group B? (Currently: ${currentGroupB ? 'YES' : 'NO'})\nClick OK for YES, Cancel for NO`);
+        
+        if (!groupA && !groupB) {
+          alert('Must select at least one lead group');
+          return;
+        }
+        
+        const leadGroups = [];
+        if (groupA) leadGroups.push('A');
+        if (groupB) leadGroups.push('B');
+        
+        const citiesArray = newCities.split(',').map(c => c.trim());
+        
+        const updatedData = {
+          company_name: newCompanyName,
+          email: newEmail,
+          phone: newPhone || null,
+          state_province: newState,
+          cities: citiesArray,
+          lead_groups: leadGroups
+        };
+        
+        const updateResponse = await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify(updatedData)
+        });
+        
+        if (updateResponse.ok) {
+          alert('✅ Client updated successfully!');
+          loadClientData();
+        } else {
+          alert('❌ Error updating client');
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Error editing client');
       }
     }
     
@@ -959,7 +1092,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
               });
               
               const result = await sendResponse.json();
-              console.log('Send result:', result);
               
               if (result.success && result.emailsSent > 0) {
                 showAlert('prospectAlert', `✅ ${companyName} added and Email 1 sent!`, 'success');
@@ -967,7 +1099,7 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
                 showAlert('prospectAlert', `✅ ${companyName} added but email failed to send. Click "Send Now" to retry.`, 'error');
               }
               
-              loadProspectData();
+                            loadProspectData();
             } catch (error) {
               console.error('Error sending email:', error);
               showAlert('prospectAlert', `✅ ${companyName} added but email failed. Click "Send Now" to retry.`, 'error');
@@ -1002,7 +1134,7 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       let errorCount = 0;
       const errors = [];
       
-            for (const line of lines) {
+      for (const line of lines) {
         let parts;
         if (line.includes('\t')) {
           parts = line.split('\t').map(p => p.trim());
@@ -1188,6 +1320,9 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
               <td>${nextEmailText}</td>
               <td>
                 <div class="action-buttons">
+                  <button class="btn btn-primary btn-sm" onclick="convertToClient('${prospect.id}', '${prospect.email}', '${prospect.company_name.replace(/'/g, "\\'")}')">
+                    ➕ Make Client
+                  </button>
                   <button class="btn btn-warning btn-sm" onclick="sendToProspect('${prospect.id}', '${prospect.email}')">
                     Send Now
                   </button>
@@ -1207,12 +1342,82 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       }
     }
     
+    // ✅ NEW: CONVERT PROSPECT TO CLIENT
+    async function convertToClient(prospectId, email, companyName) {
+      const state = prompt('Enter State (e.g., Texas):', '');
+      if (!state) return;
+      
+      const cities = prompt('Enter Cities (comma separated, e.g., Dallas, Fort Worth):', '');
+      if (!cities) return;
+      
+      const phone = prompt('Enter Phone (optional):', '');
+      
+      const groupA = confirm('Include in Group A? (50 leads/month - $2,000)\nClick OK for YES, Cancel for NO');
+      const groupB = confirm('Include in Group B? (50 leads/month - $2,000)\nClick OK for YES, Cancel for NO');
+      
+      if (!groupA && !groupB) {
+        alert('Must select at least one lead group');
+        return;
+      }
+      
+      const leadGroups = [];
+      if (groupA) leadGroups.push('A');
+      if (groupB) leadGroups.push('B');
+      
+      const citiesArray = cities.split(',').map(c => c.trim());
+      
+      const clientData = {
+        company_name: companyName,
+        email: email,
+        phone: phone || null,
+        state_province: state,
+        cities: citiesArray,
+        lead_groups: leadGroups,
+        is_active: true,
+        subscription_status: 'active',
+        country: 'USA'
+      };
+      
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/clients`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify(clientData)
+        });
+        
+        if (response.ok) {
+          await fetch(`${SUPABASE_URL}/rest/v1/prospects?id=eq.${prospectId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            },
+            body: JSON.stringify({ status: 'completed' })
+          });
+          
+          const monthlyPrice = leadGroups.length * 2000;
+          alert(`✅ ${companyName} converted to client!\nMonthly: $${monthlyPrice}`);
+          
+          loadProspectData();
+          switchTab('clients');
+        } else {
+          alert('❌ Error converting to client');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Error converting to client');
+      }
+    }
+    
     async function sendToProspect(prospectId, email) {
       if (!confirm(`Send next email to ${email}?`)) {
         return;
       }
-      
-      console.log('Sending to prospect:', prospectId, email);
       
       try {
         const response = await fetch(CAMPAIGN_FUNCTION_URL, {
@@ -1224,10 +1429,7 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
           body: JSON.stringify({ prospect_id: prospectId })
         });
         
-        console.log('Response status:', response.status);
-        
         const result = await response.json();
-        console.log('Result:', result);
         
         if (result.success && result.emailsSent > 0) {
           alert(`✅ Email sent to ${email}!`);
@@ -1295,6 +1497,81 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       } catch (error) {
         console.error('Error:', error);
         alert('❌ Error deleting prospect');
+      }
+    }
+    
+    // ==============================================
+    // LEAD DASHBOARD (TAB 3) - NEW
+    // ==============================================
+    
+    async function loadLeadData() {
+      document.getElementById('loadingLeads').style.display = 'block';
+      document.getElementById('leadsTableContainer').style.display = 'none';
+      
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/leads?select=*&order=created_at.desc&limit=50`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+        
+        const leads = await response.json();
+        
+        document.getElementById('loadingLeads').style.display = 'none';
+        document.getElementById('leadsTableContainer').style.display = 'block';
+        
+        document.getElementById('totalLeads').textContent = leads.length;
+        
+        const today = new Date().toISOString().split('T')[0];
+        const leadsToday = leads.filter(l => l.created_at.startsWith(today)).length;
+        document.getElementById('leadsToday').textContent = leadsToday;
+        
+        const leadsWithDistribution = await Promise.all(
+          leads.map(async (lead) => {
+            const distResponse = await fetch(
+              `${SUPABASE_URL}/rest/v1/lead_distributions?lead_id=eq.${lead.id}&select=*,clients(company_name)`,
+              {
+                headers: {
+                  'apikey': SUPABASE_ANON_KEY,
+                  'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+              }
+            );
+            const distributions = await distResponse.json();
+            return { ...lead, distributions };
+          })
+        );
+        
+        const distributed = leadsWithDistribution.filter(l => l.distributions && l.distributions.length > 0).length;
+        document.getElementById('distributedLeads').textContent = distributed;
+        document.getElementById('undistributedLeads').textContent = leads.length - distributed;
+        
+        const tbody = document.getElementById('leadsBody');
+        tbody.innerHTML = '';
+        
+        leadsWithDistribution.forEach(lead => {
+          const distributionInfo = lead.distributions && lead.distributions.length > 0
+            ? `<span class="badge badge-active">Group ${lead.distributions[0].lead_group}</span> → ${lead.distributions.map(d => d.clients.company_name).join(', ')}`
+            : '<span class="badge badge-inactive">Not Distributed</span>';
+          
+          const row = `
+            <tr>
+              <td><strong>${lead.name}</strong></td>
+              <td>${lead.phone}</td>
+              <td>${lead.city}</td>
+              <td>${lead.issue}</td>
+              <td>${lead.distributions && lead.distributions.length > 0 ? lead.distributions[0].lead_group : 'N/A'}</td>
+              <td>${distributionInfo}</td>
+              <td>${new Date(lead.created_at).toLocaleString()}</td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+        
+      } catch (error) {
+        console.error('Error loading leads:', error);
+        document.getElementById('loadingLeads').innerHTML = '❌ Error loading leads';
       }
     }
     
