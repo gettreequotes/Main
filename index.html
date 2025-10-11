@@ -590,7 +590,7 @@
       animation: slideUp 0.3s ease;
     }
     
-        @keyframes slideUp {
+    @keyframes slideUp {
       from { transform: translateY(50px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
@@ -697,7 +697,7 @@
 </head>
 <body>
   
-  <!-- Header -->
+   <!-- Header -->
   <header class="header">
     <div class="header-content">
       <a href="/" class="logo">
@@ -1095,7 +1095,7 @@
         updateServiceSelection();
       });
       
-            label.addEventListener('click', (e) => {
+      label.addEventListener('click', (e) => {
         e.preventDefault();
         radio.checked = true;
         updateServiceSelection();
@@ -1116,7 +1116,7 @@
     }
     
     // ==============================================
-    // FORM SUBMISSION (MAIN FORM)
+    // FORM SUBMISSION (MAIN FORM) - WITH DISTRIBUTION
     // ==============================================
     
     form.addEventListener('submit', async (e) => {
@@ -1164,7 +1164,7 @@
         user_agent: navigator.userAgent,
         referrer: document.referrer || 'direct',
         utm_source: '',
-        utm_medium: '',
+                utm_medium: '',
         utm_campaign: '',
         landing_url: window.location.href,
         timestamp: new Date().toISOString()
@@ -1183,6 +1183,27 @@
         const result = await response.json();
         
         if (response.ok && result.success) {
+          // ✅ DISTRIBUTE LEAD TO CLIENTS
+          try {
+            await fetch(`${SUPABASE_URL}/functions/v1/distribute-lead`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+              },
+              body: JSON.stringify({
+                lead: {
+                  id: result.leadId,
+                  city: userLocation.city || 'Unknown',
+                  ...formData
+                }
+              })
+            });
+            console.log('Lead distributed to clients');
+          } catch (distError) {
+            console.error('Distribution failed (lead still saved):', distError);
+          }
+          
           form.style.display = 'none';
           document.getElementById('successCity').textContent = userLocation.city || 'your area';
           successMessage.style.display = 'block';
@@ -1254,7 +1275,7 @@
     });
     
     // ==============================================
-    // EXIT FORM SUBMISSION
+    // EXIT FORM SUBMISSION - WITH DISTRIBUTION
     // ==============================================
     
     exitForm.addEventListener('submit', async (e) => {
@@ -1315,6 +1336,27 @@
         const result = await response.json();
         
         if (response.ok && result.success) {
+          // ✅ DISTRIBUTE LEAD TO CLIENTS (EXIT FORM)
+          try {
+            await fetch(`${SUPABASE_URL}/functions/v1/distribute-lead`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+              },
+              body: JSON.stringify({
+                lead: {
+                  id: result.leadId,
+                  city: userLocation.city || 'Unknown',
+                  ...formData
+                }
+              })
+            });
+            console.log('Lead distributed (exit form)');
+          } catch (distError) {
+            console.error('Distribution failed (lead still saved):', distError);
+          }
+          
           exitPopup.classList.remove('show');
           form.style.display = 'none';
           document.getElementById('successCity').textContent = userLocation.city || 'your area';
