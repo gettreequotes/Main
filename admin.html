@@ -380,6 +380,50 @@
       width: auto;
       cursor: pointer;
     }
+    
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal.show {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      max-width: 1000px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 2em;
+      cursor: pointer;
+      color: #a0aec0;
+    }
+    
+    .modal-close:hover {
+      color: #2d3748;
+    }
   </style>
 </head>
 <body>
@@ -594,7 +638,7 @@
           </p>
         </div>
         
-                    <!-- BULK ADD FORM -->
+                <!-- BULK ADD FORM -->
         <div id="bulkAddForm" style="display: none;">
           <div class="form-group">
             <label>Paste Prospects (Excel: 2 columns OR manual: email, company)</label>
@@ -653,7 +697,7 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       
     </div>
     
-    <!-- TAB 3: LEAD DASHBOARD (NEW) -->
+    <!-- TAB 3: LEAD DASHBOARD -->
     <div id="leads-tab" class="tab-content">
       
       <div class="stats-grid">
@@ -701,6 +745,19 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       
     </div>
   
+  </div>
+
+  <!-- CLIENT LEADS MODAL -->
+  <div id="clientLeadsModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeClientLeadsModal()">&times;</button>
+      
+      <h2 id="clientLeadsTitle" style="color: #2d5016; margin-bottom: 20px;">Client Leads</h2>
+      
+      <div id="clientLeadsContent" style="margin-top: 20px;">
+        <p>Loading leads...</p>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -920,6 +977,9 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
               <td><span class="badge badge-${client.is_active ? 'active' : 'inactive'}">${client.is_active ? 'Active' : 'Inactive'}</span></td>
               <td>
                 <div class="action-buttons">
+                  <button class="btn btn-primary btn-sm" onclick="viewClientLeads('${client.id}', '${client.company_name.replace(/'/g, "\\'")}')">
+                    📊 View Leads
+                  </button>
                   <button class="btn btn-secondary btn-sm" onclick="editClient('${client.id}')">
                     ✏️ Edit
                   </button>
@@ -957,7 +1017,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       }
     }
     
-    // ✅ NEW: EDIT CLIENT FUNCTION
     async function editClient(clientId) {
       try {
         const response = await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`, {
@@ -1038,6 +1097,102 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       }
     }
     
+    // VIEW CLIENT LEADS MODAL
+    async function viewClientLeads(clientId, companyName) {
+      const modal = document.getElementById('clientLeadsModal');
+      const title = document.getElementById('clientLeadsTitle');
+      const content = document.getElementById('clientLeadsContent');
+      
+      modal.classList.add('show');
+      title.textContent = `Leads for ${companyName}`;
+      content.innerHTML = '<p>Loading leads...</p>';
+      
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/lead_distributions?client_id=eq.${clientId}&select=*,leads(*)&order=sent_at.desc`,
+          {
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+          }
+        );
+        
+                const distributions = await response.json();
+        
+        if (!distributions || distributions.length === 0) {
+          content.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No leads yet for this client.</p>';
+          return;
+        }
+        
+        // Group by month
+        const leadsByMonth = {};
+        distributions.forEach(dist => {
+          const lead = dist.leads;
+          const month = new Date(dist.sent_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+          
+          if (!leadsByMonth[month]) {
+            leadsByMonth[month] = [];
+          }
+          leadsByMonth[month].push({ ...lead, sent_at: dist.sent_at, lead_group: dist.lead_group });
+        });
+        
+        // Display leads by month
+        let html = `<div style="margin-bottom: 20px;"><strong>Total Leads: ${distributions.length}</strong></div>`;
+        Object.keys(leadsByMonth).forEach(month => {
+          const leads = leadsByMonth[month];
+          html += `
+            <div style="margin-bottom: 30px;">
+              <h3 style="color: #2d5016; background: #f7fafc; padding: 15px; border-radius: 8px;">
+                ${month} - ${leads.length} lead${leads.length !== 1 ? 's' : ''}
+              </h3>
+              <table style="width: 100%; margin-top: 15px;">
+                <thead>
+                  <tr style="background: #f7fafc;">
+                    <th style="padding: 12px; text-align: left;">Name</th>
+                    <th style="padding: 12px; text-align: left;">Phone</th>
+                    <th style="padding: 12px; text-align: left;">City</th>
+                    <th style="padding: 12px; text-align: left;">Service</th>
+                    <th style="padding: 12px; text-align: left;">Group</th>
+                    <th style="padding: 12px; text-align: left;">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+          `;
+          
+          leads.forEach(lead => {
+            const phone = lead.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+            html += `
+              <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 12px;"><strong>${lead.name}</strong></td>
+                <td style="padding: 12px;">${phone}</td>
+                <td style="padding: 12px;">${lead.city}</td>
+                <td style="padding: 12px;">${lead.issue}</td>
+                <td style="padding: 12px;"><span class="badge badge-group">Group ${lead.lead_group}</span></td>
+                <td style="padding: 12px;">${new Date(lead.sent_at).toLocaleDateString()}</td>
+              </tr>
+            `;
+          });
+          
+          html += `
+                </tbody>
+              </table>
+            </div>
+          `;
+        });
+        
+        content.innerHTML = html;
+        
+      } catch (error) {
+        console.error('Error loading client leads:', error);
+        content.innerHTML = '<p style="color: red;">Error loading leads. Please try again.</p>';
+      }
+    }
+    
+    function closeClientLeadsModal() {
+      document.getElementById('clientLeadsModal').classList.remove('show');
+    }
+    
     // ==============================================
     // PROSPECT MANAGEMENT (TAB 2)
     // ==============================================
@@ -1099,7 +1254,7 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
                 showAlert('prospectAlert', `✅ ${companyName} added but email failed to send. Click "Send Now" to retry.`, 'error');
               }
               
-                            loadProspectData();
+              loadProspectData();
             } catch (error) {
               console.error('Error sending email:', error);
               showAlert('prospectAlert', `✅ ${companyName} added but email failed. Click "Send Now" to retry.`, 'error');
@@ -1342,7 +1497,6 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
       }
     }
     
-    // ✅ NEW: CONVERT PROSPECT TO CLIENT
     async function convertToClient(prospectId, email, companyName) {
       const state = prompt('Enter State (e.g., Texas):', '');
       if (!state) return;
@@ -1488,7 +1642,7 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
           }
         });
         
-        if (response.ok) {
+                if (response.ok) {
           alert(`✅ Deleted ${companyName}`);
           loadProspectData();
         } else {
@@ -1501,7 +1655,7 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
     }
     
     // ==============================================
-    // LEAD DASHBOARD (TAB 3) - NEW
+    // LEAD DASHBOARD (TAB 3)
     // ==============================================
     
     async function loadLeadData() {
@@ -1555,10 +1709,12 @@ bob@stumps.com, Bob's Stump Grinding"></textarea>
             ? `<span class="badge badge-active">Group ${lead.distributions[0].lead_group}</span> → ${lead.distributions.map(d => d.clients.company_name).join(', ')}`
             : '<span class="badge badge-inactive">Not Distributed</span>';
           
+          const phone = lead.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+          
           const row = `
             <tr>
               <td><strong>${lead.name}</strong></td>
-              <td>${lead.phone}</td>
+              <td>${phone}</td>
               <td>${lead.city}</td>
               <td>${lead.issue}</td>
               <td>${lead.distributions && lead.distributions.length > 0 ? lead.distributions[0].lead_group : 'N/A'}</td>
