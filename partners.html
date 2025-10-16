@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lead Partnership Program - GetTreeQuotes | $2,000/Month for 100 Exclusive Leads</title>
-  <meta name="description" content="Partner with GetTreeQuotes for exclusive tree service leads. $2,000/month for 100 geo-targeted, qualified leads. Nationwide coverage across 500+ cities.">
+  <meta name="description" content="Partner with GetTreeQuotes for exclusive tree service leads worldwide. $2,000/month for 100 geo-targeted leads. Available in USA, UK, Canada, and Australia.">
   
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌳</text></svg>">
   
@@ -232,42 +232,85 @@
       font-size: 1.2em;
     }
     
-    .coverage-section {
+    .country-section {
       background: var(--bg-light);
       padding: 60px;
       border-radius: 20px;
       margin: 60px 0;
     }
     
-    .coverage-section h3 {
+    .country-section h3 {
       font-size: 2.3em;
       color: var(--primary-green);
       margin-bottom: 30px;
       text-align: center;
     }
     
-    .coverage-grid {
+    .country-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
       margin-top: 40px;
     }
     
-    .state-badge {
+    .country-card {
       background: white;
-      padding: 20px;
-      border-radius: 10px;
+      padding: 30px;
+      border-radius: 15px;
       text-align: center;
-      font-weight: 700;
-      border: 2px solid #e2e8f0;
+      border: 3px solid #e2e8f0;
       transition: all 0.3s ease;
-      font-size: 1.1em;
     }
     
-    .state-badge:hover {
+    .country-card:hover {
       border-color: var(--light-green);
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .country-flag {
+      font-size: 4em;
+      margin-bottom: 15px;
+    }
+    
+    .country-card h4 {
+      font-size: 1.8em;
+      color: var(--primary-green);
+      margin-bottom: 10px;
+    }
+    
+    .country-card p {
+      font-size: 1.1em;
+      color: var(--text-light);
+      margin-bottom: 15px;
+    }
+    
+    .coverage-details {
+      font-size: 0.95em;
+      color: var(--text-light);
+      font-style: italic;
+    }
+    
+    .international-section {
+      background: linear-gradient(135deg, #e6f7ff 0%, #b3e0ff 100%);
+      border: 3px solid #0066cc;
+      padding: 50px;
+      border-radius: 20px;
+      margin: 60px 0;
+      text-align: center;
+    }
+    
+    .international-section h3 {
+      font-size: 2.3em;
+      color: var(--primary-green);
+      margin-bottom: 20px;
+    }
+    
+    .international-section p {
+      font-size: 1.3em;
+      color: var(--text-dark);
+      margin-bottom: 30px;
+      line-height: 1.8;
     }
     
     .cta-section {
@@ -350,7 +393,7 @@
       margin-bottom: 15px;
     }
     
-        .faq-item p {
+    .faq-item p {
       font-size: 1.2em;
       color: var(--text-light);
       line-height: 1.7;
@@ -377,8 +420,8 @@
         grid-template-columns: 1fr;
       }
       
-      .coverage-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      .country-grid {
+        grid-template-columns: 1fr;
       }
       
       .cta-section {
@@ -391,8 +434,8 @@
 
   <div class="header">
     <h1>🌳 Lead Partnership Program</h1>
-    <p class="subtitle">Exclusive Tree Service Leads Delivered Daily to Your Inbox - $2,000/Month for 100 Qualified Leads</p>
-    <a href="mailto:partners@gettreequotes.com?subject=Partnership%20Inquiry" class="header-cta">Schedule a Partnership Call</a>
+    <p class="subtitle">Exclusive Tree Service Leads Delivered to Your Inbox - Available Worldwide</p>
+    <a href="mailto:partners@gettreequotes.com?subject=Partnership%20Inquiry%20-%20Let's%20Discuss&body=Hi%20GetTreeQuotes%20Team,%0D%0A%0D%0AI'm%20interested%20in%20partnering%20with%20you%20for%20tree%20service%20leads.%0D%0A%0D%0ACompany%20Name:%20%0D%0ACountry:%20%0D%0ACoverage%20Area:%20%0D%0AMonthly%20Lead%20Volume%20Needed:%20%0D%0AEmail:%20%0D%0A%0D%0APlease%20send%20me%20more%20information.%0D%0A%0D%0AThank%20you!" class="header-cta">Email Us to Get Started</a>
   </div>
 
   <div class="container">
@@ -403,7 +446,7 @@
       <div class="price">$2,000<span>/month</span></div>
       <div class="pricing-includes">
         ✓ 100 Exclusive Leads Monthly<br>
-        ✓ Real-Time Delivery (Email/SMS/API)<br>
+        ✓ Real-Time Delivery (Email/API)<br>
         ✓ Geo-Targeted to Your Service Area<br>
         ✓ Month-to-Month Contract<br>
         ✓ Cancel Anytime
@@ -413,12 +456,12 @@
     <!-- STATS -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-number">500+</div>
+        <div class="stat-number">1000+</div>
         <div class="stat-label">Cities Covered</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number">50</div>
-        <div class="stat-label">States</div>
+        <div class="stat-number">4</div>
+        <div class="stat-label">Countries</div>
       </div>
       <div class="stat-card">
         <div class="stat-number">$20</div>
@@ -430,6 +473,55 @@
       </div>
     </div>
 
+    <!-- COUNTRY COVERAGE -->
+    <div class="country-section">
+      <h3>🌍 Available in 4 Countries</h3>
+      <p style="text-align: center; font-size: 1.3em; color: var(--text-light); margin-bottom: 30px;">
+        We generate qualified tree service leads across major markets worldwide
+      </p>
+      <div class="country-grid">
+        
+        <div class="country-card">
+          <div class="country-flag">🇺🇸</div>
+          <h4>United States</h4>
+          <p><strong>500+ Cities</strong></p>
+          <p class="coverage-details">All 50 states • Major metros • Rural markets</p>
+        </div>
+
+        <div class="country-card">
+          <div class="country-flag">🇬🇧</div>
+          <h4>United Kingdom</h4>
+          <p><strong>100+ Cities</strong></p>
+          <p class="coverage-details">England, Scotland, Wales • London • Manchester • Birmingham</p>
+        </div>
+
+        <div class="country-card">
+          <div class="country-flag">🇨🇦</div>
+          <h4>Canada</h4>
+          <p><strong>150+ Cities</strong></p>
+          <p class="coverage-details">All provinces • Toronto • Vancouver • Montreal • Calgary</p>
+        </div>
+
+        <div class="country-card">
+          <div class="country-flag">🇦🇺</div>
+          <h4>Australia</h4>
+          <p><strong>100+ Cities</strong></p>
+          <p class="coverage-details">All states • Sydney • Melbourne • Brisbane • Perth</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- INTERNATIONAL EXPANSION -->
+    <div class="international-section">
+      <h3>🌏 Expanding to New Markets?</h3>
+      <p>
+        We're actively expanding our lead generation network to additional countries including <strong>New Zealand, Ireland, and South Africa</strong>.
+        <br><br>
+        If you operate in markets outside USA, UK, Canada, or Australia, <strong>email us at partners@gettreequotes.com</strong> to discuss custom arrangements.
+      </p>
+    </div>
+
     <!-- FEATURES -->
     <div class="section">
       <h2>Why Partner With GetTreeQuotes?</h2>
@@ -438,19 +530,19 @@
         <div class="feature-card">
           <div class="feature-icon">🎯</div>
           <h3>100% Qualified Leads</h3>
-          <p>Every lead includes: Name, phone, zip code, specific service requested, and urgency level. Homeowners actively seeking quotes - no tire-kickers.</p>
+          <p>Every lead includes: Name, phone/email, location, specific service requested, and urgency level. Homeowners actively seeking quotes - no tire-kickers.</p>
         </div>
 
-        <div class="feature-card">
+                <div class="feature-card">
           <div class="feature-icon">⚡</div>
           <h3>Real-Time Delivery</h3>
-          <p>Leads delivered instantly via email, SMS, or direct API integration. Strike while the homeowner is hot - average 2-hour contact window.</p>
+          <p>Leads delivered instantly via email or direct API integration. Strike while the homeowner is hot - average 2-hour contact window.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🗺️</div>
           <h3>Geo-Targeted</h3>
-          <p>Choose specific cities, metro areas, counties, or entire states. Perfect for single-location shops or multi-state operations.</p>
+          <p>Choose specific cities, metro areas, or entire states/provinces. Perfect for single-location shops or multi-state operations.</p>
         </div>
 
         <div class="feature-card">
@@ -462,7 +554,7 @@
         <div class="feature-card">
           <div class="feature-icon">📊</div>
           <h3>Dashboard Access</h3>
-          <p>Track lead volume, conversion rates, ROI, and response times in your partner portal. Full transparency on every lead.</p>
+          <p>Track lead volume, conversion rates, and ROI in your partner portal. Full transparency on every lead delivered.</p>
         </div>
 
         <div class="feature-card">
@@ -480,7 +572,7 @@
       <ul>
         <li>
           <span class="check-icon">✓</span>
-          <strong>Multi-Location Tree Service Companies</strong> covering 3+ cities and needing consistent lead flow across markets
+          <strong>Multi-Location Tree Service Companies</strong> covering 3+ cities and needing consistent lead flow
         </li>
         <li>
           <span class="check-icon">✓</span>
@@ -488,7 +580,7 @@
         </li>
         <li>
           <span class="check-icon">✓</span>
-          <strong>Private Equity-Backed Consolidators</strong> actively acquiring companies and scaling nationwide
+          <strong>Private Equity-Backed Consolidators</strong> actively acquiring companies and scaling operations
         </li>
         <li>
           <span class="check-icon">✓</span>
@@ -505,83 +597,23 @@
       </ul>
     </div>
 
-    <!-- COVERAGE -->
-    <div class="coverage-section">
-      <h3>🇺🇸 Nationwide Coverage - All 50 States, 500+ Cities</h3>
-      <p style="text-align: center; font-size: 1.3em; color: var(--text-light); margin-bottom: 30px;">
-        Select your coverage areas - from single cities to multi-state territories
-      </p>
-      <div class="coverage-grid">
-        <div class="state-badge">Alabama</div>
-        <div class="state-badge">Alaska</div>
-        <div class="state-badge">Arizona</div>
-        <div class="state-badge">Arkansas</div>
-        <div class="state-badge">California</div>
-        <div class="state-badge">Colorado</div>
-        <div class="state-badge">Connecticut</div>
-        <div class="state-badge">Delaware</div>
-        <div class="state-badge">Florida</div>
-        <div class="state-badge">Georgia</div>
-        <div class="state-badge">Hawaii</div>
-        <div class="state-badge">Idaho</div>
-        <div class="state-badge">Illinois</div>
-        <div class="state-badge">Indiana</div>
-        <div class="state-badge">Iowa</div>
-        <div class="state-badge">Kansas</div>
-        <div class="state-badge">Kentucky</div>
-        <div class="state-badge">Louisiana</div>
-        <div class="state-badge">Maine</div>
-        <div class="state-badge">Maryland</div>
-        <div class="state-badge">Massachusetts</div>
-        <div class="state-badge">Michigan</div>
-        <div class="state-badge">Minnesota</div>
-        <div class="state-badge">Mississippi</div>
-        <div class="state-badge">Missouri</div>
-        <div class="state-badge">Montana</div>
-        <div class="state-badge">Nebraska</div>
-        <div class="state-badge">Nevada</div>
-        <div class="state-badge">New Hampshire</div>
-        <div class="state-badge">New Jersey</div>
-        <div class="state-badge">New Mexico</div>
-        <div class="state-badge">New York</div>
-        <div class="state-badge">North Carolina</div>
-        <div class="state-badge">North Dakota</div>
-        <div class="state-badge">Ohio</div>
-        <div class="state-badge">Oklahoma</div>
-        <div class="state-badge">Oregon</div>
-        <div class="state-badge">Pennsylvania</div>
-        <div class="state-badge">Rhode Island</div>
-        <div class="state-badge">South Carolina</div>
-        <div class="state-badge">South Dakota</div>
-        <div class="state-badge">Tennessee</div>
-        <div class="state-badge">Texas</div>
-        <div class="state-badge">Utah</div>
-        <div class="state-badge">Vermont</div>
-        <div class="state-badge">Virginia</div>
-        <div class="state-badge">Washington</div>
-        <div class="state-badge">West Virginia</div>
-        <div class="state-badge">Wisconsin</div>
-        <div class="state-badge">Wyoming</div>
-      </div>
-    </div>
-
     <!-- TESTIMONIALS -->
     <div class="section">
       <h2>What Partners Are Saying</h2>
       
       <div class="testimonial">
-        <p>"We signed up for the Dallas market and closed $45,000 in revenue from the first month's leads. ROI was 22:1. Now expanding to Houston and Austin."</p>
-        <div class="testimonial-author">— Mike Torres, Owner, Texas Tree Pros</div>
+        <p>"We signed up for leads in Dallas and closed $45,000 in revenue the first month. ROI was 22:1. Now expanding to Houston and Austin."</p>
+        <div class="testimonial-author">— Mike Torres, Owner, Texas Tree Pros (USA)</div>
       </div>
 
       <div class="testimonial">
-        <p>"As a multi-state operation, we needed consistent lead flow across 12 markets. GetTreeQuotes delivers quality leads at a fraction of what we were paying Angie's List."</p>
-        <div class="testimonial-author">— Jennifer Kim, VP Marketing, National Tree Services</div>
+        <p>"As a multi-location operation across 3 provinces, we needed consistent lead flow. GetTreeQuotes delivers quality at a fraction of what we were paying before."</p>
+        <div class="testimonial-author">— Sarah Chen, Regional Manager, Canadian Tree Services (Canada)</div>
       </div>
 
       <div class="testimonial">
-        <p>"Emergency leads are gold. We get flagged for storm damage within minutes and can dispatch crews immediately. Game changer for high-ticket jobs."</p>
-        <div class="testimonial-author">— Carlos Martinez, Regional Manager, Tree Solutions Inc</div>
+        <p>"Emergency leads are gold. We get notified within minutes of storm damage inquiries and can dispatch crews immediately. Game changer for high-ticket jobs."</p>
+        <div class="testimonial-author">— James Mitchell, Operations Director, UK Tree Solutions (United Kingdom)</div>
       </div>
     </div>
 
@@ -591,7 +623,7 @@
       
       <div class="faq-item">
         <h4>What counts as a "qualified lead"?</h4>
-        <p>A qualified lead includes the homeowner's name, phone number, zip code, specific service requested (removal, trimming, stump grinding, etc.), and whether it's an emergency. All leads come from homeowners who filled out our form requesting quotes.</p>
+        <p>A qualified lead includes the homeowner's name, phone number/email, location (city/postal code), specific service requested (removal, trimming, stump grinding, etc.), and whether it's an emergency. All leads come from property owners who filled out our form requesting quotes.</p>
       </div>
 
       <div class="faq-item">
@@ -601,12 +633,12 @@
 
       <div class="faq-item">
         <h4>How quickly are leads delivered?</h4>
-        <p>Instantly. The moment a homeowner submits a request, you receive an email/SMS with their details. You can also integrate via API for automatic CRM import. Average time from submission to your inbox: under 30 seconds.</p>
+        <p>Instantly. The moment a homeowner submits a request, you receive an email with their details. You can also integrate via API for automatic CRM import. Average time from submission to your inbox: under 30 seconds.</p>
       </div>
 
       <div class="faq-item">
         <h4>Can I choose specific cities or coverage areas?</h4>
-        <p>Absolutely. You can select: <strong>(1)</strong> Specific cities (e.g., "Dallas only"), <strong>(2)</strong> Metro areas (e.g., "Dallas-Fort Worth"), <strong>(3)</strong> Entire states, or <strong>(4)</strong> Multi-state territories. Perfect for both single-location and regional operations.</p>
+        <p>Absolutely. You can select: <strong>(1)</strong> Specific cities (e.g., "Dallas only"), <strong>(2)</strong> Metro areas (e.g., "Greater Toronto"), <strong>(3)</strong> Entire states/provinces, or <strong>(4)</strong> Multi-region territories. Perfect for both single-location and regional operations.</p>
       </div>
 
       <div class="faq-item">
@@ -616,36 +648,43 @@
 
       <div class="faq-item">
         <h4>Do you work with franchises?</h4>
-        <p>Yes! We have special packages for franchises where corporate can purchase lead packages for franchisees. We can deliver leads to multiple locations and provide franchisee-level reporting. Contact us for franchise pricing.</p>
+        <p>Yes! We have special packages for franchises where corporate can purchase lead packages for franchisees. We can deliver leads to multiple locations with franchisee-level reporting. Email us for franchise pricing.</p>
       </div>
 
       <div class="faq-item">
         <h4>What's the contract length?</h4>
-        <p>Month-to-month. No long-term contracts. Cancel anytime with 30 days notice. We believe in earning your business every month.</p>
+        <p>Month-to-month. No long-term contracts. Cancel anytime with 30 days notice. We believe in earning your business every month by delivering quality leads.</p>
       </div>
 
       <div class="faq-item">
         <h4>Can I pause my account seasonally?</h4>
-        <p>Yes. Many partners pause during winter months (Nov-Feb) and resume in spring. Just give us 15 days notice before your next billing cycle.</p>
+        <p>Yes. Many partners pause during winter months (Nov-Feb in northern climates) and resume in spring. Just give us 15 days notice before your next billing cycle.</p>
       </div>
 
       <div class="faq-item">
         <h4>Do you offer lead reselling/white-label options?</h4>
-        <p>Absolutely. Marketing agencies and lead aggregators can purchase wholesale and resell under their own brand. Minimum 200 leads/month for reseller packages. Contact us for wholesale pricing.</p>
+        <p>Absolutely. Marketing agencies and lead aggregators can purchase wholesale and resell under their own brand. Minimum 200 leads/month for reseller packages. Email partners@gettreequotes.com for wholesale pricing.</p>
+      </div>
+
+      <div class="faq-item">
+        <h4>Do pricing and terms differ by country?</h4>
+        <p>Base pricing is consistent across all countries ($2,000 USD/month for 100 leads). However, lead volume availability varies by market. UK, Canada, and Australia partners should email us to discuss current inventory levels in their target regions.</p>
       </div>
 
       <div class="faq-item">
         <h4>How do I get started?</h4>
-        <p>Email us at <strong>partners@gettreequotes.com</strong> or call <strong>(555) 123-4567</strong>. We'll schedule a 15-minute call to understand your coverage needs, set up your account, and start delivering leads within 48 hours.</p>
+        <p>Email us at <strong>partners@gettreequotes.com</strong> with your company details, target coverage area, and desired monthly lead volume. We'll respond within 24 hours with next steps and can start delivering leads within 48-72 hours.</p>
       </div>
     </div>
 
     <!-- FINAL CTA -->
     <div class="cta-section">
       <h2>Ready to Scale Your Tree Service Business?</h2>
-      <p>Join 50+ tree service companies already getting qualified leads daily</p>
-      <a href="mailto:partners@gettreequotes.com?subject=Partnership%20Inquiry%20-%20Let's%20Talk&body=Hi,%0D%0A%0D%0AI'm%20interested%20in%20partnering%20with%20GetTreeQuotes.%0D%0A%0D%0ACompany%20Name:%20%0D%0ACoverage%20Area:%20%0D%0AMonthly%20Lead%20Volume%20Needed:%20%0D%0APhone:%20%0D%0A%0D%0APlease%20contact%20me%20to%20discuss." class="cta-button">Schedule Your Partnership Call</a>
-      <p style="margin-top: 30px; font-size: 1.2em;">Or email: <strong>partners@gettreequotes.com</strong> | Call: <strong>(555) 123-4567</strong></p>
+      <p>Join tree service companies worldwide already getting qualified leads daily</p>
+      <a href="mailto:partners@gettreequotes.com?subject=Partnership%20Inquiry%20-%20Let's%20Discuss&body=Hi%20GetTreeQuotes%20Team,%0D%0A%0D%0AI'm%20interested%20in%20partnering%20with%20you%20for%20tree%20service%20leads.%0D%0A%0D%0ACompany%20Name:%20%0D%0ACountry:%20%0D%0ACoverage%20Area%20(cities/states/provinces):%20%0D%0AMonthly%20Lead%20Volume%20Needed:%20%0D%0AEmail:%20%0D%0APhone%20(optional):%20%0D%0A%0D%0APlease%20send%20me%20more%20information%20about%20your%20lead%20partnership%20program.%0D%0A%0D%0AThank%20you!" class="cta-button">Email Us to Get Started</a>
+      <p style="margin-top: 30px; font-size: 1.2em;">
+        📧 <strong>partners@gettreequotes.com</strong>
+      </p>
     </div>
 
   </div>
@@ -653,11 +692,13 @@
   <footer style="background: var(--bg-light); padding: 40px 20px; text-align: center; margin-top: 60px;">
     <p style="font-size: 1.1em; color: var(--text-light);">
       <strong>GetTreeQuotes.com</strong> - Lead Partnership Program
+      <br>
+      Available in USA 🇺🇸 | UK 🇬🇧 | Canada 🇨🇦 | Australia 🇦🇺
       <br><br>
       © 2025 GetTreeQuotes.com - All Rights Reserved
       <br>
-      <a href="/" style="color: var(--primary-green);">Back to Homepage</a> | 
-      <a href="mailto:partners@gettreequotes.com" style="color: var(--primary-green);">Contact Partnerships Team</a>
+      <a href="/" style="color: var(--primary-green); text-decoration: underline;">Back to Homepage</a> | 
+      <a href="mailto:partners@gettreequotes.com" style="color: var(--primary-green); text-decoration: underline;">Contact Partnerships Team</a>
     </p>
   </footer>
 
